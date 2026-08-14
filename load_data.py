@@ -1,16 +1,17 @@
-import os
-
 import pandas as pd
+from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
-from db.engine import DB_PATH, SessionLocal, engine
-from db.tables import Base
+from db.engine import SessionLocal, engine
+from db.tables import Base, Project
 
 CELL_COUNT_CSV = "data/cell-count.csv"
 
 
 def load_projects(df: pd.DataFrame, session: Session) -> None:
-    pass
+    projects_df = df[["project"]].drop_duplicates().rename(columns={"project": "id"})
+    records = projects_df.to_dict("records")
+    session.execute(insert(Project), records)
 
 
 def load_subjects(df: pd.DataFrame, session: Session) -> None:
@@ -26,11 +27,9 @@ def load_cell_counts(df: pd.DataFrame, session: Session) -> None:
 
 
 def main() -> None:
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
-    if os.path.exists(DB_PATH):
-        os.remove(DB_PATH)   
-        
     df = pd.read_csv(CELL_COUNT_CSV)
 
     with SessionLocal() as session:
