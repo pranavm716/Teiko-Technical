@@ -1,4 +1,4 @@
-.PHONY: setup
+.PHONY: setup pipeline dashboard
 
 setup:
 	pip install uv
