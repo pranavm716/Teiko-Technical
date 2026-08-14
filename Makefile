@@ -9,4 +9,4 @@ pipeline:
 	.venv/bin/python run_analysis.py
 
 dashboard:
-	PYTHONPATH=. .venv/bin/streamlit run dashboard/app.py
+	PYTHONPATH=. .venv/bin/streamlit run dashboard/app.py --server.headless true
