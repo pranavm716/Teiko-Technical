@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from matplotlib.figure import Figure
+from scipy.stats import mannwhitneyu
 from sqlalchemy.engine import Engine
 
 from load_data import POPULATIONS
@@ -64,3 +65,36 @@ def generate_boxplots(group_frequencies: pd.DataFrame) -> dict[str, Figure]:
         figures[population] = fig
 
     return figures
+
+
+def compute_stats(group_frequencies: pd.DataFrame) -> pd.DataFrame:
+    n_tests = len(POPULATIONS)
+    rows = []
+
+    for population in POPULATIONS:
+        pop_df = group_frequencies[group_frequencies["population"] == population]
+
+        responder_values = pop_df.loc[pop_df["response"] == "yes", "percentage"]
+        non_responder_values = pop_df.loc[pop_df["response"] == "no", "percentage"]
+
+        statistic, p_value = mannwhitneyu(
+            responder_values, non_responder_values, alternative="two-sided"
+        )
+
+        p_value_corrected = min(p_value * n_tests, 1.0)
+
+        rows.append(
+            {
+                "population": population,
+                "n_responders": len(responder_values),
+                "n_non_responders": len(non_responder_values),
+                "median_responders": round(responder_values.median(), 2),
+                "median_non_responders": round(non_responder_values.median(), 2),
+                "u_statistic": round(statistic, 2),
+                "p_value": round(p_value, 4),
+                "p_value_corrected": round(p_value_corrected, 4),
+                "significant": p_value_corrected < 0.05,
+            }
+        )
+
+    return pd.DataFrame(rows)
