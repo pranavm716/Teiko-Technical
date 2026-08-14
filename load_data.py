@@ -3,7 +3,7 @@ from sqlalchemy import insert
 from sqlalchemy.orm import Session
 
 from db.engine import SessionLocal, engine
-from db.tables import Base, Project, Sample, Subject
+from db.tables import Base, Project, Sample, Subject, CellCount
 
 CELL_COUNT_CSV = "data/cell-count.csv"
 
@@ -37,7 +37,17 @@ def load_samples(df: pd.DataFrame, session: Session) -> None:
 
 
 def load_cell_counts(df: pd.DataFrame, session: Session) -> None:
-    pass
+    populations = ["b_cell", "cd8_t_cell", "cd4_t_cell", "nk_cell", "monocyte"]
+
+    cell_counts_df = df.melt(
+        id_vars=["sample"],
+        value_vars=populations,
+        var_name="population",
+        value_name="count",
+    ).rename(columns={"sample": "sample_id"})
+
+    records = cell_counts_df.to_dict("records")
+    session.execute(insert(CellCount), records)
 
 
 def main() -> None:
