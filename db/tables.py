@@ -15,7 +15,7 @@ class Subject(Base):
     __tablename__ = "subject"
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    project_id: Mapped[str] = mapped_column(ForeignKey("project.id"))
+    project_id: Mapped[str] = mapped_column(ForeignKey("project.id"), index=True)
     condition: Mapped[str]
     age: Mapped[int]
     sex: Mapped[str]
@@ -31,7 +31,7 @@ class Sample(Base):
     __tablename__ = "sample"
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    subject_id: Mapped[str] = mapped_column(ForeignKey("subject.id"))
+    subject_id: Mapped[str] = mapped_column(ForeignKey("subject.id"), index=True)
     sample_type: Mapped[str]
     time_from_treatment_start: Mapped[int]
 
