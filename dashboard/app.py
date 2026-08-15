@@ -65,6 +65,18 @@ def render_part_3_statistical_analysis(group_frequencies: pd.DataFrame) -> None:
         with cols[i % 2]:
             st.pyplot(boxplots[population])
 
+    st.subheader("Summary")
+    st.markdown(
+        """
+        None of the 5 cell populations showed a statistically significant difference
+        between responders and non-responders, after correcting for running 5 tests.
+
+        The p_value for cd4_t_cell came close (0.0134), but became too high once the Bonferroni correction was applied (0.067).
+
+        As a result, none of these 5 populations reliably predicts whether a patient responds to miraclib.
+        """
+    )
+
 
 def main() -> None:
     st.set_page_config(page_title="Teiko - Cell Population Analysis", layout="wide")
