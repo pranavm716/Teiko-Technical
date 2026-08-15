@@ -1,4 +1,3 @@
-# analysis/part_4_subset_analysis.py
 import pandas as pd
 from sqlalchemy.engine import Engine
 
@@ -20,3 +19,29 @@ def get_baseline_samples(engine: Engine) -> pd.DataFrame:
           AND sample.time_from_treatment_start = 0
     """
     return pd.read_sql(query, engine)
+
+
+def summarize_baseline_breakdown(
+    baseline_samples: pd.DataFrame,
+) -> dict[str, pd.DataFrame]:
+    by_project = (
+        baseline_samples.groupby("project_id").size().reset_index(name="sample_count")
+    )
+
+    by_response = (
+        baseline_samples.groupby("response")["subject_id"]
+        .nunique()
+        .reset_index(name="subject_count")
+    )
+
+    by_sex = (
+        baseline_samples.groupby("sex")["subject_id"]
+        .nunique()
+        .reset_index(name="subject_count")
+    )
+
+    return {
+        "by_project": by_project,
+        "by_response": by_response,
+        "by_sex": by_sex,
+    }
