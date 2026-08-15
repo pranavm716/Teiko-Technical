@@ -5,9 +5,9 @@ import pandas as pd
 
 from analysis.part_2_frequencies import compute_frequencies
 from analysis.part_3_statistical_analysis import (
+    compute_stats,
     generate_boxplots,
     get_group_frequencies,
-    compute_stats,
 )
 from db.engine import engine
 
@@ -34,7 +34,6 @@ def save_part_3_statistical_analysis_output(all_frequencies: pd.DataFrame) -> No
     stats_summary = compute_stats(group_frequencies)
     stats_summary.to_csv(f"{OUTPUT_DIR}/part_3_stats_summary.csv", index=False)
     print("run_analysis.py: part 3 stats summary written")
-    print(stats_summary)
 
 
 def main() -> None:
