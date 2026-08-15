@@ -62,6 +62,8 @@ def main() -> None:
         load_cell_counts(df, session)
         session.commit()
 
+    print("load_data.py: part 1 database populated")
+
 
 if __name__ == "__main__":
     main()
