@@ -2,7 +2,7 @@
 
 ## Run instructions
 Run these commands in sequence:
-```Make
+```make
 make setup  # Configures environment, installs dependencies
 make pipeline  # Populates database (part 1), generates outputs (parts 2-4)
 make dashboard  # Launches dashboard locally
@@ -26,6 +26,10 @@ Four tables: `project` → `subject` → `sample` → `cell_count`. Each has a f
 - Added `CHECK` constraints on `subject.response` and `cell_count.population` fields to catch errors at load time.
 
 ### Scaling considerations
+- Added indexes on `subject.project_id` and `sample.subject_id` fields since they are foreign keys likely to be used in joins. This helps improve query times as the data grows.
+- The long format `cell_count` table handles new cell populations as new rows, not a schema change.
+- A relational database like Postgres would be used in production instead of SQLite since it can handle larger write volumes.
+- Since the schema is fully relational, most new analytics questions are just new SQL queries against existing tables. Schema changes would only be needed if the shape of the underlying data changed, not for new analysis types.
 
 ## Repo structure
 
@@ -34,7 +38,7 @@ Four tables: `project` → `subject` → `sample` → `cell_count`. Each has a f
 * `part_3_statistical_analysis.py`
 * `part_4_data_subset_analysis.py`
 
-I kept the business logic of the analysis of each part in their own pure functions, which return Pandas dataframes. Since the outputs go to two places (file on disk and displayed on the dashboard), I created light wrappers that call these pure functions. This way, no code is repeated.
+I kept each part's analysis logic in its own pure function, which return Pandas dataframes. Since the outputs go to two places (file on disk and displayed on the dashboard), I created light wrappers that call these pure functions. This way, no code is repeated.
 
 ### `dashboard/app.py`
 
