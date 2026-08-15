@@ -10,6 +10,7 @@ from analysis.part_3_statistical_analysis import (
     get_group_frequencies,
 )
 from analysis.part_4_data_subset_analysis import (
+    compute_average_b_cells_melanoma_male_responders,
     get_baseline_samples,
     summarize_baseline_breakdown,
 )
@@ -49,6 +50,14 @@ def save_part_4_data_subset_analysis_output() -> None:
     os.makedirs(SUBSETS_DIR, exist_ok=True)
     for name, breakdown_df in breakdowns.items():
         breakdown_df.to_csv(f"{SUBSETS_DIR}/{name}.csv", index=False)
+
+    avg_b_cells = compute_average_b_cells_melanoma_male_responders(engine)
+    pd.DataFrame([{"avg_b_cells_melanoma_male_responders": avg_b_cells}]).to_csv(
+        f"{OUTPUT_DIR}/part_4_average_b_cells_responders.csv", index=False
+    )
+    print(
+        f"run_analysis.py: average B cells for melanoma male responders at time=0: {avg_b_cells:.2f}"
+    )
 
     print("run_analysis.py: part 4 baseline subset and breakdowns written")
 

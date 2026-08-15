@@ -45,3 +45,19 @@ def summarize_baseline_breakdown(
         "by_response": by_response,
         "by_sex": by_sex,
     }
+
+
+def compute_average_b_cells_melanoma_male_responders(engine: Engine) -> float:
+    query = """
+        SELECT cell_count.count
+        FROM cell_count
+        JOIN sample ON cell_count.sample_id = sample.id
+        JOIN subject ON sample.subject_id = subject.id
+        WHERE subject.condition = 'melanoma'
+          AND subject.sex = 'M'
+          AND subject.response = 'yes'
+          AND sample.time_from_treatment_start = 0
+          AND cell_count.population = 'b_cell'
+    """
+    b_cell_counts = pd.read_sql(query, engine)
+    return round(b_cell_counts["count"].mean(), 2)
