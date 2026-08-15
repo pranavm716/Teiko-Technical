@@ -9,10 +9,15 @@ from analysis.part_3_statistical_analysis import (
     generate_boxplots,
     get_group_frequencies,
 )
+from analysis.part_4_data_subset_analysis import (
+    get_baseline_samples,
+    summarize_baseline_breakdown,
+)
 from db.engine import engine
 
 OUTPUT_DIR = "output"
 BOXPLOTS_DIR = f"{OUTPUT_DIR}/part_3_boxplots"
+SUBSETS_DIR = f"{OUTPUT_DIR}/part_4_subsets"
 
 
 def save_part_2_frequencies_output(all_frequencies: pd.DataFrame) -> None:
@@ -36,12 +41,25 @@ def save_part_3_statistical_analysis_output(all_frequencies: pd.DataFrame) -> No
     print("run_analysis.py: part 3 stats summary written")
 
 
+def save_part_4_data_subset_analysis_output() -> None:
+    baseline_samples = get_baseline_samples(engine)
+    baseline_samples.to_csv(f"{OUTPUT_DIR}/part_4_baseline_samples.csv", index=False)
+
+    breakdowns = summarize_baseline_breakdown(baseline_samples)
+    os.makedirs(SUBSETS_DIR, exist_ok=True)
+    for name, breakdown_df in breakdowns.items():
+        breakdown_df.to_csv(f"{SUBSETS_DIR}/{name}.csv", index=False)
+
+    print("run_analysis.py: part 4 baseline subset and breakdowns written")
+
+
 def main() -> None:
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     all_frequencies = compute_frequencies(engine)
     save_part_2_frequencies_output(all_frequencies)
     save_part_3_statistical_analysis_output(all_frequencies)
+    save_part_4_data_subset_analysis_output()
 
 
 if __name__ == "__main__":
