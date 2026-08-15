@@ -1,4 +1,5 @@
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")  # non interactive mode
 import matplotlib.pyplot as plt
@@ -39,6 +40,7 @@ def get_group_frequencies(
 
 
 def generate_boxplots(group_frequencies: pd.DataFrame) -> dict[str, Figure]:
+    np.random.seed(42)  # Ensures the same plots are created every run
     figures = {}
 
     for population in POPULATIONS:

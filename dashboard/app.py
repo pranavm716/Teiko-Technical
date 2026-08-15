@@ -7,6 +7,11 @@ from analysis.part_3_statistical_analysis import (
     generate_boxplots,
     get_group_frequencies,
 )
+from analysis.part_4_data_subset_analysis import (
+    compute_average_b_cells_melanoma_male_responders,
+    get_baseline_samples,
+    summarize_baseline_breakdown,
+)
 from db.engine import engine
 from load_data import POPULATIONS
 
@@ -19,6 +24,21 @@ def load_all_frequencies() -> pd.DataFrame:
 @st.cache_data
 def load_group_frequencies(all_frequencies: pd.DataFrame) -> pd.DataFrame:
     return get_group_frequencies(all_frequencies, engine)
+
+
+@st.cache_data
+def load_baseline_samples() -> pd.DataFrame:
+    return get_baseline_samples(engine)
+
+
+@st.cache_data
+def load_breakdowns(baseline_samples: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    return summarize_baseline_breakdown(baseline_samples)
+
+
+@st.cache_data
+def load_avg_b_cells() -> float:
+    return compute_average_b_cells_melanoma_male_responders(engine)
 
 
 def render_part_2_frequencies(all_frequencies: pd.DataFrame) -> None:
@@ -78,15 +98,54 @@ def render_part_3_statistical_analysis(group_frequencies: pd.DataFrame) -> None:
     )
 
 
+def render_part_4_data_subset_analysis(
+    baseline_samples: pd.DataFrame,
+    breakdowns: dict[str, pd.DataFrame],
+    avg_b_cells: float,
+) -> None:
+    st.header("Part 4: Data Subset Analysis")
+
+    st.subheader("Baseline Samples")
+    st.caption(
+        "Melanoma PBMC samples at baseline (time_from_treatment_start = 0) "
+        "from patients on miraclib."
+    )
+    st.caption(
+        f"{len(baseline_samples):,} samples across "
+        f"{baseline_samples['subject_id'].nunique():,} subjects"
+    )
+    st.dataframe(baseline_samples, width="stretch", hide_index=True)
+
+    st.subheader("Breakdowns")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("**By Project**")
+        st.dataframe(breakdowns["by_project"], width="stretch", hide_index=True)
+    with col2:
+        st.markdown("**By Response**")
+        st.dataframe(breakdowns["by_response"], width="stretch", hide_index=True)
+    with col3:
+        st.markdown("**By Sex**")
+        st.dataframe(breakdowns["by_sex"], width="stretch", hide_index=True)
+
+    st.subheader("Average B Cell Count: Melanoma Male Responders at Baseline")
+    st.caption("This includes all sample types (PBMC and WB) and all treatments.")
+    st.metric(label="Average B Cell Count", value=f"{avg_b_cells:.2f}")
+
+
 def main() -> None:
     st.set_page_config(page_title="Teiko - Cell Population Analysis", layout="wide")
     st.title("Immune Cell Population Analysis")
 
     all_frequencies = load_all_frequencies()
     group_frequencies = load_group_frequencies(all_frequencies)
+    baseline_samples = load_baseline_samples()
+    breakdowns = load_breakdowns(baseline_samples)
+    avg_b_cells = load_avg_b_cells()
 
     render_part_2_frequencies(all_frequencies)
     render_part_3_statistical_analysis(group_frequencies)
+    render_part_4_data_subset_analysis(baseline_samples, breakdowns, avg_b_cells)
 
 
 if __name__ == "__main__":
